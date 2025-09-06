@@ -2,8 +2,9 @@ FROM php:8.2-cli
 
 WORKDIR /app
 
-# Install tools
-RUN apt-get update && apt-get install -y unzip git curl
+# Install tools and PHP extensions
+RUN apt-get update && apt-get install -y unzip git curl libpng-dev libonig-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring xml
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -12,7 +13,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 
 # Install Laravel dependencies
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader
 
 EXPOSE 8000
 
