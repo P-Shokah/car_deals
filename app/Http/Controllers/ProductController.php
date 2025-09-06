@@ -16,8 +16,9 @@ class ProductController extends Controller
             'status' => 'required|in:available,sold',
             'state' => 'required|in:brand new,fairly used',
             'price(FCFA)' => 'required|string|255',
+            'vendor_id' => 'required|exists:users,id'
         ]);
-        $product = Product::create($data);
+        $product = Product::create($data, );
 
         return response()->json([
             'status' => 'success',
