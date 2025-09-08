@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,9 @@ use App\Http\Controllers\VendorController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+// ---------------- Public Product view Routes ----------------
+Route::get('products', [ProductController::class, 'index']);
+Route::get('product/{id}', [ProductController::class, 'show']);
 // ---------------- Public Authentication Routes ----------------
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -30,22 +34,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/me', [AuthController::class, 'me']);
 });
 
-// ---------------- Student Profile Routes ----------------
+// ----------------Client Profile Routes ----------------
 Route::middleware(['auth:sanctum', 'role:client'])->group(function () {
     Route::post('clients/profile', [ClientController::class, 'update']);
 });
-// --------------Admin-only routes to manage student profiles-----------------
+// --------------Admin-only routes to manage client profiles-----------------
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('admin/clients/{id}/profile', [ClientController::class, 'update']);
 });
 
-// ---------------- Teacher Profile Routes ----------------
+// ---------------- Vendor Profile Routes ----------------
 Route::middleware(['auth:sanctum', 'role:vendor'])->group(function () {
     Route::post('vendors/profile', [VendorController::class, 'update']);
 });
 
-//----------------Admin-only routes to manage teacher profiles-------------
+//----------------Admin-only routes to manage vendor profiles-------------
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('admin/vendors/{id}/profile', [VendorController::class, 'update']);
     Route::delete('admin/vendors/{id}/profile', [VendorController::class, 'destroy']);
+});
+//----------------Vendor-only routes to manage their products-------------
+Route::middleware(['auth:sanctum', 'role:vendor', 'is_completed'])->group(function () {
+    Route::post('products/create', [ProductController::class, 'store']);
+    Route::put('product/{id}/update', [ProductController::class, 'update']);
+    Route::delete('product/{id}/delete', [ProductController::class, 'destroy']);
+});
+//----------------Admin-only routes to manage Products-------------
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('products/create', [ProductController::class, 'store']);
+    Route::put('product/{id}/update', [ProductController::class, 'update']);
+    Route::delete('product/{id}/delete', [ProductController::class, 'destroy']);
 });

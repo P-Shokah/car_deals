@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+    // POST /api/products/create
     public function store(Request $request){
         $data = $request->validate([
             'product_type' => 'required|in:car,car part',
@@ -16,18 +18,30 @@ class ProductController extends Controller
             'status' => 'required|in:available,sold',
             'state' => 'required|in:brand new,fairly used',
             'price(FCFA)' => 'required|string|255',
-            'vendor_id' => 'required|exists:users,id'
+            'vendor_id' => 'required|exists:vendors,id'
         ]);
-        $product = Product::create($data, );
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Product created successfully',
-            'data' => $product
-        ], 201);
+        $user = Auth::user();
+
+        if($user->role !== 'vendor' && $user->role !== 'admin'){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not allowed to perform this action register as a Vendor first',
+            ]);
+        }
+        else{
+            $product = Product::create($data, );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product created successfully',
+                'data' => $product
+            ], 201);
+        }
     }
 
-    // View a single course
+    // View a single product by id
+    // GET /api/product/{id}
     public function show($id)
     {
         $product = Product::with('vendor')->find($id);
@@ -45,7 +59,8 @@ class ProductController extends Controller
         ]);
     }
 
-    // Update course details
+    // Update product details
+    // PUT api/product/{id}/update
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
@@ -67,16 +82,27 @@ class ProductController extends Controller
             'price(FCFA)' => 'sometimes|string|255'
         ]);
 
-        $product->update($data);
+        $user = Auth::user();
+
+        if($user->role !== 'vendor' && $user->role !== 'admin'){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not allowed to perform this action register as a Vendor first',
+            ]);
+        }
+        else{
+            $product->update($data);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Product updated successfully',
             'data' => $product
-        ]);
+            ], 201);
+        }
     }
 
-    // Delete a course
+    // Delete a product
+    // DELETE /api/product/{id}/delete
     public function destroy($id)
     {
         $product = Product::find($id);
@@ -87,14 +113,26 @@ class ProductController extends Controller
                 'message' => 'Product not found'
             ], 404);
         }
+        else{
+            $user = Auth::user();
 
-        $product->delete();
+            if($user->role !== 'vendor' && $user->role !== 'admin'){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You are not allowed to perform this action register as a Vendor first',
+                ]);
+            }
+            else{
+                $product->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Product deleted successfully'
-        ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product deleted successfully'
+                ]);
+            }
+        }
     }   
+    //GET /api/products
     public function index()
     {
         $product = Product::all();
