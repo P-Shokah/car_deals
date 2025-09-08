@@ -20,6 +20,7 @@ return new class extends Migration
             $table->year('production_year');
             $table->enum('status', ['available', 'sold']);
             $table->enum('state',['brand new', 'fairly used']);
+            $table->string('pic');
             $table->string('price(FCFA)');
             $table->timestamps();
         });

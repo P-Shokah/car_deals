@@ -15,6 +15,7 @@ class Product extends Model
         'production_year',
         'status',
         'state',
+        'pic',
         'price(FCFA)'
     ];
     public function transaction() {

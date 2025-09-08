@@ -18,6 +18,7 @@ class ProductController extends Controller
             'status' => 'required|in:available,sold',
             'state' => 'required|in:brand new,fairly used',
             'price(FCFA)' => 'required|string|255',
+            'pic' => 'required|file|mimes:jpg,png,pdf,docx|max:2048',
             'vendor_id' => 'required|exists:vendors,id'
         ]);
 
@@ -30,6 +31,7 @@ class ProductController extends Controller
             ]);
         }
         else{
+            $data['pic'] = $request->file('pic')->store('uploads'); 
             $product = Product::create($data, );
 
             return response()->json([
